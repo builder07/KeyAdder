@@ -7,5 +7,4 @@ setup (name = 'enigma2-plugin-extensions-Biscotto',
        packages = [pkg],
        package_dir = {pkg: 'plugin'},
        package_data = {pkg: ['plugin.png']},
-       cmdclass = setup_translate.cmdclass, # for translation
       )
