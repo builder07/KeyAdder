@@ -19,7 +19,7 @@ from array import array
 from string import hexdigits
 from datetime import datetime
 from Components.config import config,  ConfigText, ConfigSubsection
-from Screens.VirtualKeyBoard import VirtualKeyBoard
+from VirtualKeyBoard import VirtualKeyBoard
 ###########
 config.plugins.KeyAdder = ConfigSubsection()
 config.plugins.KeyAdder.lastcaid = ConfigText(default='0', fixed_size=False)
