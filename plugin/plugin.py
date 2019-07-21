@@ -6,21 +6,31 @@
 # Edit By RAED Fix keyboard 22-05-2019
 # Edit By RAED Fix keyboard Add Version number 27-05-2019
 # Edit By RAED to openvision image 07-07-2019
+# Edit By RAED & mfaraj57 change plugin name to AddKey 12-07-2019
 
-from enigma import eConsoleAppContainer, eDVBDB, iServiceInformation
-from Components.Label import Label
+from enigma import eConsoleAppContainer, eDVBDB, iServiceInformation, eTimer, loadPNG, getDesktop, RT_WRAP, RT_HALIGN_LEFT, RT_VALIGN_CENTER, eListboxPythonMultiContent, gFont
+from Components.MultiContent import MultiContentEntryText, MultiContentEntryPixmapAlphaTest
+from Components.config import config,  ConfigText, ConfigSubsection
 from Plugins.Plugin import PluginDescriptor
 from Tools.BoundFunction import boundFunction
 from ServiceReference import ServiceReference
 from Screens.MessageBox import MessageBox
-import os
-import binascii
+from Screens.Screen import Screen
+from Screens.Console import Console
+from Components.ActionMap import ActionMap
+from urllib2 import Request
 from array import array
 from string import hexdigits
 from datetime import datetime
-from Components.config import config,  ConfigText, ConfigSubsection
+from Components.MenuList import MenuList
+from Tools.Directories import fileExists
+import binascii
+import os
 from VirtualKeyBoard import VirtualKeyBoard
-###########
+
+Ver = "2.3"
+reswidth = getDesktop(0).size().width()
+resheight = getDesktop(0).size().height()
 config.plugins.KeyAdder = ConfigSubsection()
 config.plugins.KeyAdder.lastcaid = ConfigText(default='0', fixed_size=False)
 
@@ -61,11 +71,13 @@ def getnewcaid(SoftCamKey):
       return newcaid 
 
 def findSoftCamKey():
-	paths = ["/etc/tuxbox/config/oscam-emu", "/etc/tuxbox/config/oscam-trunk", "/etc/tuxbox/config/oscam", "/etc/tuxbox/config/ncam", "/etc/tuxbox/config", "/etc", "/var/keys", "/usr/keys"]
+	paths = ["/etc/tuxbox/config/oscam-emu", "/etc/tuxbox/config/oscam-trunk", "/etc/tuxbox/config/oscam", "/etc/tuxbox/config/ncam", "/etc/tuxbox/config/gcam", "/etc/tuxbox/config", "/etc", "/var/keys", "/usr/keys"]
 	if os.path.exists("/tmp/.oscam/oscam.version"):
 		data = open("/tmp/.oscam/oscam.version", "r").readlines()
 	if os.path.exists("/tmp/.ncam/ncam.version"):
 		data = open("/tmp/.ncam/ncam.version", "r").readlines()
+	if os.path.exists("/tmp/.ncam/gcam.version"):
+		data = open("/tmp/.ncam/gcam.version", "r").readlines()
 		for line in data:
 			if "configdir:" in line.lower():
 				paths.insert(0, line.split(":")[1].strip())
@@ -75,6 +87,89 @@ def findSoftCamKey():
 		if os.path.exists(softcamkey):
 			return softcamkey
 	return "/usr/keys/SoftCam.Key"
+
+class AddKeyUpdate(Screen):
+    if reswidth == 1920:
+           skin = '''
+                <screen name="AddKeyUpdate" position="center,center" size="650,300" backgroundColor="#16000000" transparent="0" title="KeyAdder" >
+                       <widget name="menu" position="30,30" size="650,300" backgroundColor="#16000000" transparent = "0" />
+                </screen>'''
+    else:
+           skin = '''
+                <screen name="AddKeyUpdate" position="center,center" size="450,180" backgroundColor="#16000000" transparent="0" title="KeyAdder" >
+                       <widget name="menu" position="20,20" size="450,180" backgroundColor="#16000000" transparent = "0" />
+                </screen>'''
+
+    def __init__(self, session, title='', datalist = []):
+        Screen.__init__(self, session)
+        self['menu'] = MenuList([], enableWrapAround=True, content=eListboxPythonMultiContent)
+        self['actions'] = ActionMap(['ColorActions', 'WizardActions'], {'back': self.close,
+         'ok': self.select,
+         'back': self.close}, -1)
+        title=_("KeyAdder Version %s") % Ver
+        menuData = []
+        menuData.append((0, "Add key Manually ", 'key'))
+        menuData.append((1, "Update Softcam online", 'update'))
+        menuData.append((2, 'Exit', 'exit'))
+        self.settitle(title, menuData)
+
+    def settitle(self, title, datalist):
+        self.setTitle(title)
+        self.showmenulist(datalist)
+
+    def select(self):
+        index = self['menu'].getSelectionIndex()
+        if index==0:
+                keymenu(self.session)
+        elif index==1:
+                self.Downloadkeys()
+        else:
+            self.close()   
+           
+    def Downloadkeys(self, SoftCamKey=None):
+        cmdlist = []
+        SoftCamKey =findSoftCamKey()
+        myurl = 'http://www.softcam.org/deneme6.php?file=SoftCam.Key'
+        command = 'wget -O %s %s' % (SoftCamKey, myurl)
+        self.session.open(Console, title="Updating softcam file.....", cmdlist=[command])
+        self.close()
+      
+    def showmenulist(self, datalist):
+        cacolor = 16776960
+        cbcolor = 16753920
+        cccolor = 15657130
+        cdcolor = 16711680
+        cecolor = 16729344
+        cfcolor = 65407
+        cgcolor = 11403055
+        chcolor = 13047173
+        cicolor = 13789470
+        scolor = cbcolor
+        res = []
+        menulist = []
+        if reswidth == 1280:
+            self['menu'].l.setItemHeight(50)
+            self['menu'].l.setFont(0, gFont('Regular', 28))
+        else:
+            self['menu'].l.setItemHeight(75)
+            self['menu'].l.setFont(0, gFont('Regular', 42))
+        for i in range(0, len(datalist)):
+            txt = datalist[i][1]
+            if reswidth == 1280:
+                  png = os.path.join('/usr/lib/enigma2/python/Plugins/Extensions/KeyAdder/VirtualKeyBoard_Icons/buttonsHD/%s.png' % datalist[i][2])
+            else:
+                  png = os.path.join('/usr/lib/enigma2/python/Plugins/Extensions/KeyAdder/VirtualKeyBoard_Icons/buttonsFHD/%s.png' % datalist[i][2])
+            res.append(MultiContentEntryText(pos=(0, 1), size=(0, 0), font=0, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER | RT_WRAP, text='', color=scolor, color_sel=cccolor, border_width=3, border_color=806544))
+            if reswidth == 1280:
+                res.append(MultiContentEntryText(pos=(60, 1), size=(723, 50), font=0, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER | RT_WRAP, text=str(txt), color=16777215, color_sel=16777215))
+                res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(40, 40), png=loadPNG(png)))
+            else:
+                res.append(MultiContentEntryText(pos=(100, 1), size=(1080, 75), font=0, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER | RT_WRAP, text=str(txt), color=16777215, color_sel=16777215))
+                res.append(MultiContentEntryPixmapAlphaTest(pos=(5, 5), size=(75, 75), png=loadPNG(png)))
+            menulist.append(res)
+            res = []
+        self['menu'].l.setList(menulist)
+        self['menu'].show()
 
 class HexKeyBoard(VirtualKeyBoard):
 	def __init__(self, session, title="", **kwargs):
@@ -152,7 +247,7 @@ def getCAIDS(session):
 	if caids: caidstr = " ".join(["%04X (%d)" % (x,x) for x in sorted(caids)])
 	return caidstr
 
-def keymenu(session, service=None, *args, **kwargs):
+def keymenu(session, service=None):
 	service = session.nav.getCurrentService()
 	info = service and service.info()
 	caids = info and info.getInfoObject(iServiceInformation.sCAIDs)
@@ -314,8 +409,11 @@ def findKeyIRDETO(session, SoftCamKey, key="00000000000000000000000000000000"):
 	else:
 		return key
 
+def main(session, **kwargs):
+    session.open(AddKeyUpdate)
+
 def Plugins(**kwargs):
 	return [PluginDescriptor(name = "Key Adder" , description = "Add BISS, PowerVU, Irdeto and Tandberg keys to current service", icon="plugin.png",
 		where = [PluginDescriptor.WHERE_EXTENSIONSMENU, PluginDescriptor.WHERE_PLUGINMENU],
-		fnc = keymenu, needsRestart = False)]
+		fnc = main, needsRestart = False)]
 
