@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
 # Edit By RAED to OE2.5 images 10-03-2019
 # Edit By RAED Add IRDETO & PowerVU 14-03-2019
 # Edit By RAED Fix PowerVU 18-03-2019
@@ -88,7 +90,7 @@ def findSoftCamKey():
 				paths.insert(0, line.split(":")[1].strip())
 	for path in paths:
 		softcamkey = os.path.join(path, "SoftCam.Key")
-		print "[key] the %s exists %d" % (softcamkey, os.path.exists(softcamkey))
+		print("[key] the %s exists %d" % (softcamkey, os.path.exists(softcamkey)))
 		if os.path.exists(softcamkey):
 			return softcamkey
 	return "/usr/keys/SoftCam.Key"

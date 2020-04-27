@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
 import copy
 import skin
 from enigma import eListboxPythonMultiContent, gFont, getPrevAsciiCode, RT_HALIGN_CENTER, RT_VALIGN_CENTER, getDesktop
@@ -2250,7 +2252,7 @@ class VirtualKeyBoard(Screen):
 
     def smsOK(self):
         if self.smsChar and self.selectAsciiKey_old(self.smsChar):
-            print 'pressing ok now'
+            print('pressing ok now')
             self.okClicked()
 
     def keyGotAscii_old(self):
@@ -2297,7 +2299,7 @@ class VirtualKeyBoard(Screen):
         else:
             self.skinName = 'vkeyboardnew_fhdskin'
         prompt = self.title
-        print 'VirtualKeyboard New'
+        print('VirtualKeyboard New')
         if dwidth == 1280:
             self.key_bg = LoadPixmap(resolveFilename(SCOPE_PLUGINS, 'Extensions/KeyAdder/VirtualKeyBoard_Icons/buttonsHD/vkey_bg.png'))
             self.key_red_bg = LoadPixmap(resolveFilename(SCOPE_PLUGINS, 'Extensions/KeyAdder/VirtualKeyBoard_Icons/buttonsHD/vkey_red.png'))

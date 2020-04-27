@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
 # Code by mfaraj57 and RAED (c) 2018
 
 from Components.ActionMap import ActionMap
@@ -107,7 +109,7 @@ class imagedownloadScreen(Screen):
             except urllib2.URLError as e:
                 trace_error()
                 if hasattr(e, 'code'):
-                    print 'We failed with error code - %s.' % e.code
+                    print('We failed with error code - %s.' % e.code)
                     if '401' in str(e.code):
                         self['status'].setText('Falied to download softcam-401')  
                         return None
@@ -144,7 +146,7 @@ class imagedownloadScreen(Screen):
         self.setTitle(_('Downloading') + ' ' + str(p) + '%...')
 
     def responseCompleted(self, data = None):
-        print '[Softcam downloader] Download succeeded. '
+        print('[Softcam downloader] Download succeeded. ')
         info = 'Download completed successfully.\npress Ok To Exit'   
         self['status'].setText(info)
         self.setTitle(_('Download completed successfully.'))
@@ -153,7 +155,7 @@ class imagedownloadScreen(Screen):
         self.instance.show()
 
     def responseFailed(self, failure_instance = None, error_message = ''):
-        print '[Softcam downloader] Download failed. '
+        print('[Softcam downloader] Download failed. ')
         self.error_message = error_message
         if error_message == '' and failure_instance is not None:
             self.error_message = failure_instance.getErrorMessage()
