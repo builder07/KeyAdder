@@ -1,16 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 # Edit By RAED to OE2.5 images 10-03-2019
-# Edit By RAED Add IRDETO & PowerVU 14-03-2019
-# Edit By RAED Fix PowerVU 18-03-2019
-# Edit By RAED Edit keyboard 19-03-2019
-# Edit By mfaraj57 & RAED Fix tandberg 02-04-2019
-# Edit By RAED Fix keyboard 22-05-2019
-# Edit By RAED Fix keyboard Add Version number 27-05-2019
-# Edit By RAED to openvision image 07-07-2019
-# Edit By RAED & mfaraj57 change plugin name to AddKey 12-07-2019
-# Edit By RAED Add more site to download softcam files 28-07-2019
+
+from __future__ import print_function
 
 from enigma import eConsoleAppContainer, eDVBDB, iServiceInformation, eTimer, loadPNG, getDesktop, RT_WRAP, RT_HALIGN_LEFT, RT_VALIGN_CENTER, eListboxPythonMultiContent, gFont
 from Components.MultiContent import MultiContentEntryText, MultiContentEntryPixmapAlphaTest
@@ -22,15 +14,18 @@ from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Screens.Console import Console
 from Components.ActionMap import ActionMap
-from urllib2 import Request
 from array import array
 from string import hexdigits
 from datetime import datetime
 from Components.MenuList import MenuList
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 import binascii
-import os
 from VirtualKeyBoard import VirtualKeyBoard
+
+# python3
+from os import path as os_path
+from sys import version_info
+PY3 = version_info[0] == 3
 
 Ver = "2.5"
 reswidth = getDesktop(0).size().width()
@@ -47,7 +42,7 @@ def getnewcaid(SoftCamKey):
    import os
    caidnumbers=[]
    newkey=1
-   if os.path.exists(SoftCamKey):
+   if os_path.exists(SoftCamKey):
       try:
           lines=open(SoftCamKey).readlines()
           for line in lines:
@@ -80,19 +75,19 @@ def getnewcaid(SoftCamKey):
 
 def findSoftCamKey():
 	paths = ["/etc/tuxbox/config/oscam-emu", "/etc/tuxbox/config/oscam-trunk", "/etc/tuxbox/config/oscam", "/etc/tuxbox/config/ncam", "/etc/tuxbox/config/gcam", "/etc/tuxbox/config", "/etc", "/var/keys", "/usr/keys"]
-	if os.path.exists("/tmp/.oscam/oscam.version"):
+	if os_path.exists("/tmp/.oscam/oscam.version"):
 		data = open("/tmp/.oscam/oscam.version", "r").readlines()
-	if os.path.exists("/tmp/.ncam/ncam.version"):
+	if os_path.exists("/tmp/.ncam/ncam.version"):
 		data = open("/tmp/.ncam/ncam.version", "r").readlines()
-	if os.path.exists("/tmp/.gcam/gcam.version"):
+	if os_path.exists("/tmp/.gcam/gcam.version"):
 		data = open("/tmp/.gcam/gcam.version", "r").readlines()
 		for line in data:
 			if "configdir:" in line.lower():
 				paths.insert(0, line.split(":")[1].strip())
 	for path in paths:
-		softcamkey = os.path.join(path, "SoftCam.Key")
-		print("[key] the %s exists %d" % (softcamkey, os.path.exists(softcamkey)))
-		if os.path.exists(softcamkey):
+		softcamkey = os_path.join(path, "SoftCam.Key")
+		print("[key] the %s exists %d" % (softcamkey, os_path.exists(softcamkey)))
+		if os_path.exists(softcamkey):
 			return softcamkey
 	return "/usr/keys/SoftCam.Key"
 
@@ -156,11 +151,11 @@ class AddKeyUpdate(Screen):
                 command = 'wget -O %s %s' % (SoftCamKey, myurl)
                 self.session.open(imagedownloadScreen,'softcam',SoftCamKey, myurl)
             elif select[1] == "Serjoga softcam":
-                myurl = 'https://raw.githubusercontent.com/audi06/SoftCam.Key_Serjoga/master/SoftCam.Key'
+                myurl = 'http://raw.githubusercontent.com/audi06/SoftCam.Key_Serjoga/master/SoftCam.Key'
                 command = 'wget -q %s %s %s %s' % (crt, agent, SoftCamKey, myurl)
                 self.session.open(imagedownloadScreen,'softcam',SoftCamKey,myurl)
             elif select[1] == "enigma1969 softcam":
-                myurl = 'https://drive.google.com/uc?authuser=0&id=1aujij43w7qAyPHhfBLAN9sE-BZp8_AwI&export=download'
+                myurl = 'http://drive.google.com/uc?authuser=0&id=1aujij43w7qAyPHhfBLAN9sE-BZp8_AwI&export=download'
                 command = 'wget -O %s %s' % (SoftCamKey, myurl)
                 self.session.open(imagedownloadScreen,'softcam',SoftCamKey,myurl)
             else:
@@ -190,9 +185,9 @@ class AddKeyUpdate(Screen):
         for i in range(0, len(datalist)):
             txt = datalist[i][1]
             if reswidth == 1280:
-                  png = os.path.join(resolveFilename(SCOPE_PLUGINS, 'Extensions/KeyAdder/VirtualKeyBoard_Icons/buttonsHD/%s.png' % datalist[i][2]))
+                  png = os_path.join(resolveFilename(SCOPE_PLUGINS, 'Extensions/KeyAdder/VirtualKeyBoard_Icons/buttonsHD/%s.png' % datalist[i][2]))
             else:
-                  png = os.path.join(resolveFilename(SCOPE_PLUGINS, 'Extensions/KeyAdder/VirtualKeyBoard_Icons/buttonsFHD/%s.png' % datalist[i][2]))
+                  png = os_path.join(resolveFilename(SCOPE_PLUGINS, 'Extensions/KeyAdder/VirtualKeyBoard_Icons/buttonsFHD/%s.png' % datalist[i][2]))
             res.append(MultiContentEntryText(pos=(0, 1), size=(0, 0), font=0, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER | RT_WRAP, text='', color=scolor, color_sel=cccolor, border_width=3, border_color=806544))
             if reswidth == 1280:
                 res.append(MultiContentEntryText(pos=(60, 1), size=(723, 50), font=0, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER | RT_WRAP, text=str(txt), color=16777215, color_sel=16777215))
@@ -236,16 +231,34 @@ for byte in range(256):
 	table.append(crc)
 
 def crc32(string):
-	value = 0x2600 ^ 0xffffffffL
-	for ch in string:
-		value = table[(ord(ch) ^ value) & 0xff] ^ (value >> 8)
-	return value ^ 0xffffffffL
+      if PY3:
+                value = 0x2600 ^ 0xffffffff
+      else:
+                value = 0x2600 ^ 0xffffffffL
+      for ch in string:
+                if PY3:
+                	value = table[(ch ^ value) & 0xff] ^ (value >> 8)
+                else:
+                	value = table[(ord(ch) ^ value) & 0xff] ^ (value >> 8)
+      if PY3:
+                return value ^ 0xffffffff
+      else:
+                return value ^ 0xffffffffL
 
 def crc323(string):
-	value = 0xe00 ^ 0xffffffffL
-	for ch in string:
-		value = table[(ord(ch) ^ value) & 0xff] ^ (value >> 8)
-	return value ^ 0xffffffffL
+      if PY3:
+                value = 0xe00 ^ 0xffffffff
+      else:
+                value = 0xe00 ^ 0xffffffffL
+      for ch in string:
+                if PY3:
+                	value = table[(ch ^ value) & 0xff] ^ (value >> 8)
+                else:
+                	value = table[(ord(ch) ^ value) & 0xff] ^ (value >> 8)
+      if PY3:
+                return value ^ 0xffffffff
+      else:
+                return value ^ 0xffffffffL
 
 def hasCAID(session):
 	service = session.nav.getCurrentService()
@@ -287,7 +300,7 @@ def keymenu(session, service=None):
 	caids = info and info.getInfoObject(iServiceInformation.sCAIDs)
 	SoftCamKey = findSoftCamKey()
 	ref = session.nav.getCurrentlyPlayingServiceReference()
-	if not os.path.exists(SoftCamKey):
+	if not os_path.exists(SoftCamKey):
 		session.open(MessageBox, _("Emu misses SoftCam.Key (%s)" % SoftCamKey), MessageBox.TYPE_ERROR)
 	elif not hasCAID(session):
 		session.open(MessageBox, _("CAID is missing for service (%s) CAIDS: %s" % (ref.toString(), getCAIDS(session))), MessageBox.TYPE_ERROR)
@@ -450,4 +463,3 @@ def Plugins(**kwargs):
 	return [PluginDescriptor(name = "Key Adder" , description = "Add BISS, PowerVU, Irdeto and Tandberg keys to current service", icon="plugin.png",
 		where = [PluginDescriptor.WHERE_EXTENSIONSMENU, PluginDescriptor.WHERE_PLUGINMENU],
 		fnc = main, needsRestart = False)]
-
