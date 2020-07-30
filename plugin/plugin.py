@@ -74,16 +74,11 @@ def getnewcaid(SoftCamKey):
       return newcaid 
 
 def findSoftCamKey():
-	paths = ["/etc/tuxbox/config/oscam-emu", "/etc/tuxbox/config/oscam-trunk", "/etc/tuxbox/config/oscam", "/etc/tuxbox/config/ncam", "/etc/tuxbox/config/gcam", "/etc/tuxbox/config", "/etc", "/var/keys", "/usr/keys"]
+	paths = ["/etc/tuxbox/config/oscam-emu", "/etc/tuxbox/config/oscam-trunk", "/etc/tuxbox/config/oscam", "/etc/tuxbox/config/ncam", "/etc/tuxbox/config", "/etc", "/var/keys", "/usr/keys"]
 	if os_path.exists("/tmp/.oscam/oscam.version"):
 		data = open("/tmp/.oscam/oscam.version", "r").readlines()
 	if os_path.exists("/tmp/.ncam/ncam.version"):
 		data = open("/tmp/.ncam/ncam.version", "r").readlines()
-	if os_path.exists("/tmp/.gcam/gcam.version"):
-		data = open("/tmp/.gcam/gcam.version", "r").readlines()
-		for line in data:
-			if "configdir:" in line.lower():
-				paths.insert(0, line.split(":")[1].strip())
 	for path in paths:
 		softcamkey = os_path.join(path, "SoftCam.Key")
 		print("[key] the %s exists %d" % (softcamkey, os_path.exists(softcamkey)))
