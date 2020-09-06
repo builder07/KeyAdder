@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Edit & update By RAED to OpenVison images
 
 from __future__ import print_function
 
